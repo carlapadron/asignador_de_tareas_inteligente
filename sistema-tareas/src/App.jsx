@@ -301,7 +301,7 @@ export default function App() {
             <div className="flex items-center gap-4 bg-slate-800/80 px-4 py-2 rounded-xl border border-slate-700/60">
               <div className="text-right">
                 <p className="text-xs font-bold text-slate-200">{currentUser.name}</p>
-                <p className="text-[10px] text-indigo-400 font-semibold uppercase">{currentUser.role === 'admin' ? '🛡️ Administrador' : `👨‍💻 ${currentUser.empRole}`}</p>
+                <p className="text-[10px] text-indigo-400 font-semibold uppercase">{currentUser.role === 'admin' ? '🛡️ Administrador' : `👨 ${currentUser.empRole}`}</p>
               </div>
               <button
                 onClick={handleLogout}
@@ -333,7 +333,7 @@ export default function App() {
                   loginRole === 'admin' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-white'
                 }`}
               >
-                👨‍💼 Administrador
+                Administrador
               </button>
               <button
                 onClick={() => setLoginRole('employee')}
@@ -341,7 +341,7 @@ export default function App() {
                   loginRole === 'employee' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-white'
                 }`}
               >
-                👨‍💻 Empleado
+                 Empleado
               </button>
             </div>
 
@@ -415,19 +415,19 @@ export default function App() {
                     onClick={() => setAdminTab('create')}
                     className={`pb-3 transition-all ${adminTab === 'create' ? 'border-b-2 border-indigo-500 text-indigo-400 font-semibold' : 'text-slate-400 hover:text-slate-200'}`}
                   >
-                    🤖 Generador AI & Matcher
+                    Generador AI & Matcher
                   </button>
                   <button
                     onClick={() => setAdminTab('tasks')}
                     className={`pb-3 transition-all ${adminTab === 'tasks' ? 'border-b-2 border-indigo-500 text-indigo-400 font-semibold' : 'text-slate-400 hover:text-slate-200'}`}
                   >
-                    📋 Todas las Tareas ({tasks.length})
+                    Todas las Tareas ({tasks.length})
                   </button>
                   <button
                     onClick={() => setAdminTab('employees')}
                     className={`pb-3 transition-all ${adminTab === 'employees' ? 'border-b-2 border-indigo-500 text-indigo-400 font-semibold' : 'text-slate-400 hover:text-slate-200'}`}
                   >
-                    👤 Gestión de Empleados ({employees.length})
+                    Gestión de Empleados ({employees.length})
                   </button>
                 </div>
 
@@ -526,7 +526,7 @@ export default function App() {
 
                     <div className="lg:col-span-7 bg-slate-900/60 backdrop-blur-md p-6 rounded-2xl border border-slate-800 shadow-xl space-y-4">
                       <h2 className="text-lg font-bold text-slate-100 flex items-center justify-between">
-                        <span>🤖 Matcher de Compatibilidad AI</span>
+                        <span> Matcher de Compatibilidad </span>
                         <span className="text-xs font-normal text-indigo-400 bg-indigo-500/10 px-3 py-1 rounded-full border border-indigo-500/20">En tiempo real</span>
                       </h2>
 
