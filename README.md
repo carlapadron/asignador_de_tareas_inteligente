@@ -1,6 +1,6 @@
-# ⚡ TaskMaster React AI - Gestor Inteligente de Proyectos
+# Asignador Inteligente de Tareas para Proyectos.
 
-Sistema web de gestión de tareas con **Inteligencia Artificial** y **cálculo de compatibilidad de personal** en tiempo real.
+Sistema web que asigna tareas para un proyecto dependiendo de las habilidades de los empleados con Inteligencia Artificial y cálculo de compatibilidad de personal en tiempo real.
 
 ## Características Principales
 
