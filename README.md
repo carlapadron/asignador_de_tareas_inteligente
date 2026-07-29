@@ -1,6 +1,6 @@
 # Asignador Inteligente de Tareas para Proyectos.
 
-Sistema web que asigna tareas para un proyecto dependiendo de las habilidades de los empleados con Inteligencia Artificial y cálculo de compatibilidad de personal en tiempo real.
+Aplicación web para la gestión eficiente de proyectos que combina Inteligencia Artificial para el desglose automático de actividades y un algoritmo de evaluación de compatibilidad (% Match) para asignar tareas según las habilidades técnicas.
 
 ## Características Principales
 
