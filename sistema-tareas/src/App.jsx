@@ -10,12 +10,12 @@ const DEFAULT_EMPLOYEES = [
 const DEFAULT_TASKS = [
   {
     id: 1,
-    title: "Diseñar Dashboard Principal con React",
+    title: "Diseñar Dashboard Principal con React & Liquid Glass",
     category: "Frontend",
     requiredSkills: ["frontend", "react", "tailwind"],
     assignedTo: "Carlos Gómez",
     status: "En Progreso",
-    createdAt: "2026-07-21"
+    createdAt: "2026-08-12"
   }
 ];
 
@@ -35,12 +35,13 @@ export default function App() {
     return saved ? JSON.parse(saved) : null;
   });
 
-  // Login
+  // Login State
   const [loginRole, setLoginRole] = useState('admin');
   const [adminUsername, setAdminUsername] = useState('');
   const [adminPassword, setAdminPassword] = useState('');
   const [selectedEmpId, setSelectedEmpId] = useState(employees[0]?.id || 1);
   const [empPassword, setEmpPassword] = useState('');
+  const [showManualLogin, setShowManualLogin] = useState(false);
 
   // Dashboard Tabs
   const [adminTab, setAdminTab] = useState('create');
@@ -64,6 +65,14 @@ export default function App() {
 
   // Toast
   const [notification, setNotification] = useState(null);
+
+  useEffect(() => {
+    // Inyectar fuentes Google (Fustat e Inter)
+    const link = document.createElement('link');
+    link.href = 'https://fonts.googleapis.com/css2?family=Fustat:wght@700;800&family=Inter:wght@400;500;600;700&display=swap';
+    link.rel = 'stylesheet';
+    document.head.appendChild(link);
+  }, []);
 
   useEffect(() => {
     localStorage.setItem('tm_employees', JSON.stringify(employees));
@@ -160,14 +169,25 @@ export default function App() {
     }, 900);
   };
 
-  // Auth Handlers
+  // Auth Handlers - Demo Acceso Rápido
+  const handleQuickDemoAdmin = () => {
+    setCurrentUser({ role: 'admin', name: 'Administrador Principal' });
+    showToast("⚡ ¡Acceso Demo como Administrador activado!");
+  };
+
+  const handleQuickDemoEmployee = () => {
+    const firstEmp = employees[0] || DEFAULT_EMPLOYEES[0];
+    setCurrentUser({ role: 'employee', name: firstEmp.name, id: firstEmp.id, empRole: firstEmp.role });
+    showToast(`⚡ ¡Acceso Demo activado como ${firstEmp.name}!`);
+  };
+
   const handleAdminLogin = (e) => {
     e.preventDefault();
     if (adminUsername === 'admin' && adminPassword === 'admin123') {
       setCurrentUser({ role: 'admin', name: 'Administrador Principal' });
       showToast("¡Bienvenido, Administrador!");
     } else {
-      showToast("Credenciales de Admin incorrectas", "error");
+      showToast("Credenciales de Admin incorrectas (Prueba: admin / admin123)", "error");
     }
   };
 
@@ -193,7 +213,7 @@ export default function App() {
     showToast("Sesión cerrada");
   };
 
-  // Matcher
+  // Matcher Algorithm
   const calculateMatch = (employeeSkills, requiredSkills) => {
     if (!requiredSkills.length) return 100;
     const empSet = new Set(employeeSkills.map(s => s.toLowerCase().trim()));
@@ -246,7 +266,6 @@ export default function App() {
     showToast(`Empleado ${newEmpName} registrado`);
   };
 
-  // FUNCIONES DE ELIMINACIÓN
   const handleDeleteTask = (taskId) => {
     setTasks(tasks.filter(t => t.id !== taskId));
     showToast("🗑️ Tarea eliminada del sistema");
@@ -266,166 +285,244 @@ export default function App() {
   const reqSkillsList = taskSkills.split(',').map(s => s.trim()).filter(Boolean);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans antialiased selection:bg-indigo-500 selection:text-white pb-12">
-      {/* TOAST */}
+    <div className="min-h-screen bg-white text-slate-900 font-sans antialiased selection:bg-[#0084FF] selection:text-white relative overflow-x-hidden">
+      
+      {/* GLOW DE FONDO TOP-LEFT (LIQUID GLASS) */}
+      <div className="absolute top-[-100px] left-[-100px] w-[500px] h-[500px] bg-gradient-to-br from-[#60B1FF]/30 to-[#319AFF]/20 rounded-full blur-[120px] pointer-events-none z-0" />
+
+      {/* TOAST NOTIFICATION */}
       {notification && (
-        <div className={`fixed top-5 right-5 z-50 px-5 py-3 rounded-xl shadow-2xl backdrop-blur-md border animate-bounce transition-all duration-300 ${
-          notification.type === 'error' ? 'bg-red-500/20 border-red-500/50 text-red-200' : 'bg-emerald-500/20 border-emerald-500/50 text-emerald-200'
+        <div className={`fixed top-6 right-6 z-50 px-6 py-3.5 rounded-2xl shadow-2xl backdrop-blur-xl border text-sm font-semibold animate-bounce transition-all duration-300 ${
+          notification.type === 'error' 
+            ? 'bg-rose-500/10 border-rose-500/30 text-rose-700' 
+            : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-800'
         }`}>
           {notification.type === 'error' ? '⚠️ ' : '✅ '}
           {notification.message}
         </div>
       )}
 
-      {/* HEADER */}
-      <header className="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-xl border-b border-slate-800/80 px-6 py-4">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center font-black text-xl shadow-lg shadow-indigo-500/30 animate-pulse">
-              ⚡
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-xl font-bold bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
-                  TaskMaster React AI
-                </h1>
-                <span className="text-[10px] font-extrabold bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-2 py-0.5 rounded-full shadow-sm">
-                  AI POWERED
-                </span>
+      {/* BARRA SUPERIOR DE LOGUEADO (SOLO CUANDO HAY SESIÓN ACTIVA) */}
+      {currentUser && (
+        <header className="sticky top-[20px] z-50 max-w-[1400px] mx-auto px-4 sm:px-6">
+          <nav className="w-full mx-auto backdrop-blur-[50px] bg-white/40 border border-black/10 rounded-[18px] p-3 sm:px-6 shadow-[inset_0px_4px_4px_0px_rgba(255,255,255,0.4)] flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-xl bg-[#0084FF] text-white flex items-center justify-center font-black text-sm shadow-md shadow-[#0084FF]/30">
+                ✓
               </div>
-              <p className="text-xs text-slate-400">Sistema Inteligente de Gestión & Copiloto AI</p>
+              <span style={{ fontFamily: "'Fustat', sans-serif" }} className="text-xl font-extrabold tracking-tight text-slate-900">
+                TaskMaster<span className="text-[#0084FF]">.ai</span>
+              </span>
             </div>
-          </div>
 
-          {currentUser && (
-            <div className="flex items-center gap-4 bg-slate-800/80 px-4 py-2 rounded-xl border border-slate-700/60">
-              <div className="text-right">
-                <p className="text-xs font-bold text-slate-200">{currentUser.name}</p>
-                <p className="text-[10px] text-indigo-400 font-semibold uppercase">{currentUser.role === 'admin' ? '🛡️ Administrador' : `👨 ${currentUser.empRole}`}</p>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 bg-white/70 backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-200/80 shadow-sm">
+                <div className="text-right text-xs">
+                  <p className="font-bold text-slate-900">{currentUser.name}</p>
+                  <p className="text-[10px] text-[#0084FF] font-semibold">{currentUser.role === 'admin' ? ' Admin' : `👨 ${currentUser.empRole}`}</p>
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs px-3 py-1.5 rounded-lg transition-all font-semibold border border-rose-200"
+                >
+                  Salir
+                </button>
               </div>
-              <button
-                onClick={handleLogout}
-                className="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 text-xs px-3 py-1.5 rounded-lg transition-all"
-              >
-                🚪 Salir
-              </button>
             </div>
-          )}
-        </div>
-      </header>
+          </nav>
+        </header>
+      )}
 
-      <main className="max-w-7xl mx-auto px-6 mt-8">
+      {/* CONTENIDO PRINCIPAL */}
+      <main className="max-w-[1400px] mx-auto px-6 pt-6 pb-16 relative z-10">
+        
         {!currentUser ? (
-          /* LOGIN */
-          <div className="max-w-md mx-auto my-12 bg-slate-900/80 backdrop-blur-2xl p-8 rounded-3xl border border-slate-800 shadow-2xl space-y-6">
-            <div className="text-center space-y-2">
-              <div className="w-16 h-16 bg-gradient-to-tr from-indigo-500/20 to-purple-500/20 rounded-2xl border border-indigo-500/30 flex items-center justify-center text-3xl mx-auto text-indigo-400">
-                🔒
-              </div>
-              <h2 className="text-2xl font-bold text-slate-100">Iniciar Sesión</h2>
-              <p className="text-xs text-slate-400">Accede con tu rol correspondiente</p>
-            </div>
-
-            <div className="grid grid-cols-2 p-1 bg-slate-800/80 rounded-xl border border-slate-700/50">
-              <button
-                onClick={() => setLoginRole('admin')}
-                className={`py-2 text-xs font-bold rounded-lg transition-all ${
-                  loginRole === 'admin' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                Administrador
-              </button>
-              <button
-                onClick={() => setLoginRole('employee')}
-                className={`py-2 text-xs font-bold rounded-lg transition-all ${
-                  loginRole === 'employee' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                 Empleado
-              </button>
-            </div>
-
-            {loginRole === 'admin' ? (
-              <form onSubmit={handleAdminLogin} className="space-y-4">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-400 mb-1">Usuario Admin</label>
-                  <input
-                    type="text"
-                    placeholder="Usuario"
-                    value={adminUsername}
-                    onChange={(e) => setAdminUsername(e.target.value)}
-                    className="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-400 mb-1">Contraseña</label>
-                  <input
-                    type="password"
-                    placeholder="••••••••"
-                    value={adminPassword}
-                    onChange={(e) => setAdminPassword(e.target.value)}
-                    className="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500"
-                  />
-                </div>
-                <button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-indigo-600/30 text-sm">
-                  Ingresar al Panel Admin
-                </button>
-              </form>
-            ) : (
-              <form onSubmit={handleEmployeeLogin} className="space-y-4">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-400 mb-1">Selecciona tu Nombre</label>
-                  <select
-                    value={selectedEmpId}
-                    onChange={(e) => setSelectedEmpId(e.target.value)}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500"
-                  >
-                    {employees.map((emp) => (
-                      <option key={emp.id} value={emp.id}>
-                        {emp.name} ({emp.role})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-400 mb-1">Contraseña / PIN</label>
-                  <input
-                    type="password"
-                    placeholder="••••••••"
-                    value={empPassword}
-                    onChange={(e) => setEmpPassword(e.target.value)}
-                    className="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500"
-                  />
-                </div>
-                <button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-indigo-600/30 text-sm">
-                  Ingresar a mis Tareas
-                </button>
-              </form>
-            )}
-
+          /* ==================================================== */
+          /* LANDING HERO SENCILLO Y LIMPIO */
+          /* ==================================================== */
+          <div className="pt-6 sm:pt-10">
             
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center min-h-[70vh]">
+              
+              {/* HERO IZQUIERDA: TÍTULO SENCILLO Y BOTONES DEMO */}
+              <div className="lg:col-span-7 space-y-6 text-left">
+                
+                {/* TÍTULO PRINCIPAL SENCILLO */}
+                 <h1 
+                  style={{ fontFamily: "'Fustat', sans-serif" }} 
+                  className="text-4xl sm:text-6xl lg:text-[68px] font-black leading-[1.08] tracking-tight text-slate-900"
+                >
+                  Asignación Inteligente <br />
+                  <span className="bg-gradient-to-r from-[#0084FF] via-[#319AFF] to-[#60B1FF] bg-clip-text text-transparent">
+                    de Tareas con IA
+                  </span>
+                </h1>
+
+                {/* SUBTÍTULO CON BRAND TASKMASTER.AI */}
+                <p className="text-base sm:text-lg text-slate-600 max-w-xl font-normal leading-relaxed">
+                  <strong>TaskMaster.ai</strong> es la plataforma inteligente para optimizar la productividad de tu equipo de software, desglosando requerimientos con Inteligencia Artificial y evaluando la compatibilidad (% Match) en tiempo real.
+                </p>
+
+                {/* BOTONES ACCESO RÁPIDO DEMO */}
+                <div className="pt-2 space-y-4">
+                  <div className="flex flex-wrap gap-3">
+                    <button
+                      onClick={handleQuickDemoAdmin}
+                      className="bg-[#0084FF] hover:bg-[#0073DC] text-white font-semibold text-sm sm:text-base px-6 py-3.5 rounded-[16px] shadow-lg shadow-[#0084FF]/25 border border-white/20 transition-all hover:scale-[1.02] active:scale-95 flex items-center gap-2"
+                    >
+                      <span>Probar como Administrador</span>
+                      <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-xs">→</span>
+                    </button>
+
+                    <button
+                      onClick={handleQuickDemoEmployee}
+                      className="bg-white/80 hover:bg-white text-slate-800 font-semibold text-sm sm:text-base px-6 py-3.5 rounded-[16px] border border-slate-300/80 shadow-md backdrop-blur-md transition-all hover:scale-[1.02] active:scale-95 flex items-center gap-2"
+                    >
+                      <span>Probar como Desarrollador</span>
+                    </button>
+                  </div>
+
+                  <button
+                    onClick={() => setShowManualLogin(!showManualLogin)}
+                    className="text-xs font-semibold text-slate-500 hover:text-[#0084FF] underline transition-colors block pt-1"
+                  >
+                    {showManualLogin ? '▲ Ocultar formulario manual' : '⚙️ O ingresar con credenciales manuales (admin / admin123)'}
+                  </button>
+                </div>
+
+                {/* FORMULARIO LOGIN MANUAL (OPCIONAL) */}
+                {showManualLogin && (
+                  <div className="bg-white/80 backdrop-blur-2xl p-6 rounded-3xl border border-slate-200 shadow-xl max-w-md space-y-4 animate-fade-in mt-4">
+                    <div className="flex p-1 bg-slate-100 rounded-xl">
+                      <button
+                        onClick={() => setLoginRole('admin')}
+                        className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                          loginRole === 'admin' ? 'bg-white text-[#0084FF] shadow-sm' : 'text-slate-500'
+                        }`}
+                      >
+                        Admin
+                      </button>
+                      <button
+                        onClick={() => setLoginRole('employee')}
+                        className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                          loginRole === 'employee' ? 'bg-white text-[#0084FF] shadow-sm' : 'text-slate-500'
+                        }`}
+                      >
+                        Empleado
+                      </button>
+                    </div>
+
+                    {loginRole === 'admin' ? (
+                      <form onSubmit={handleAdminLogin} className="space-y-3">
+                        <input
+                          type="text"
+                          placeholder="Usuario (admin)"
+                          value={adminUsername}
+                          onChange={(e) => setAdminUsername(e.target.value)}
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs text-slate-900 focus:outline-none focus:border-[#0084FF]"
+                        />
+                        <input
+                          type="password"
+                          placeholder="Contraseña (admin123)"
+                          value={adminPassword}
+                          onChange={(e) => setAdminPassword(e.target.value)}
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs text-slate-900 focus:outline-none focus:border-[#0084FF]"
+                        />
+                        <button type="submit" className="w-full bg-[#0084FF] text-white font-bold py-2.5 rounded-xl text-xs shadow-md">
+                          Ingresar
+                        </button>
+                      </form>
+                    ) : (
+                      <form onSubmit={handleEmployeeLogin} className="space-y-3">
+                        <select
+                          value={selectedEmpId}
+                          onChange={(e) => setSelectedEmpId(e.target.value)}
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs text-slate-900 focus:outline-none focus:border-[#0084FF]"
+                        >
+                          {employees.map((emp) => (
+                            <option key={emp.id} value={emp.id}>
+                              {emp.name} ({emp.role})
+                            </option>
+                          ))}
+                        </select>
+                        <input
+                          type="password"
+                          placeholder="Contraseña (123)"
+                          value={empPassword}
+                          onChange={(e) => setEmpPassword(e.target.value)}
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs text-slate-900 focus:outline-none focus:border-[#0084FF]"
+                        />
+                        <button type="submit" className="w-full bg-[#0084FF] text-white font-bold py-2.5 rounded-xl text-xs shadow-md">
+                          Ingresar
+                        </button>
+                      </form>
+                    )}
+                  </div>
+                )}
+
+              </div>
+
+              {/* HERO DERECHA: ESFERA 3D GIRANDO */}
+              <div className="lg:col-span-5 flex items-center justify-center relative">
+                <div className="relative w-full max-w-md lg:max-w-lg aspect-square flex items-center justify-center">
+                  <div className="absolute w-72 h-72 bg-[#60B1FF]/30 rounded-full blur-3xl -z-10 animate-pulse" />
+                  <div className="absolute w-64 h-64 bg-[#319AFF]/20 rounded-full blur-2xl -z-10" />
+
+                  <video
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="w-full h-full object-contain mix-blend-screen scale-125 transition-transform duration-700 hover:scale-130 pointer-events-none"
+                    style={{
+                      filter: "hue-rotate(-55deg) saturate(250%) brightness(1.2) contrast(1.1)"
+                    }}
+                  >
+                    <source src="https://future.co/images/homepage/glassy-orb/orb-purple.webm" type="video/webm" />
+                  </video>
+                </div>
+              </div>
+
+            </div>
+
           </div>
         ) : (
-          /* PANEL PRINCIPAL LOGUEADO */
-          <div className="space-y-6">
+          /* ==================================================== */
+          /* PANEL DE CONTROL (CUANDO HAY SESIÓN ACTIVA) */
+          /* ==================================================== */
+          <div className="space-y-8 animate-fade-in">
+            
             {currentUser.role === 'admin' ? (
-              <div className="space-y-6">
-                <div className="flex border-b border-slate-800 gap-6 text-sm font-medium">
+              <div className="space-y-8">
+                
+                <div className="flex border-b border-slate-200 gap-8 text-sm font-semibold">
                   <button
                     onClick={() => setAdminTab('create')}
-                    className={`pb-3 transition-all ${adminTab === 'create' ? 'border-b-2 border-indigo-500 text-indigo-400 font-semibold' : 'text-slate-400 hover:text-slate-200'}`}
+                    className={`pb-3 transition-all ${
+                      adminTab === 'create' 
+                        ? 'border-b-2 border-[#0084FF] text-[#0084FF] font-bold' 
+                        : 'text-slate-500 hover:text-slate-800'
+                    }`}
                   >
-                    Generador AI & Matcher
+                     Generador AI & Matcher
                   </button>
                   <button
                     onClick={() => setAdminTab('tasks')}
-                    className={`pb-3 transition-all ${adminTab === 'tasks' ? 'border-b-2 border-indigo-500 text-indigo-400 font-semibold' : 'text-slate-400 hover:text-slate-200'}`}
+                    className={`pb-3 transition-all ${
+                      adminTab === 'tasks' 
+                        ? 'border-b-2 border-[#0084FF] text-[#0084FF] font-bold' 
+                        : 'text-slate-500 hover:text-slate-800'
+                    }`}
                   >
                     Todas las Tareas ({tasks.length})
                   </button>
                   <button
                     onClick={() => setAdminTab('employees')}
-                    className={`pb-3 transition-all ${adminTab === 'employees' ? 'border-b-2 border-indigo-500 text-indigo-400 font-semibold' : 'text-slate-400 hover:text-slate-200'}`}
+                    className={`pb-3 transition-all ${
+                      adminTab === 'employees' 
+                        ? 'border-b-2 border-[#0084FF] text-[#0084FF] font-bold' 
+                        : 'text-slate-500 hover:text-slate-800'
+                    }`}
                   >
                     Gestión de Empleados ({employees.length})
                   </button>
@@ -433,22 +530,24 @@ export default function App() {
 
                 {adminTab === 'create' && (
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    
                     <div className="lg:col-span-5 space-y-6">
-                      <div className="bg-gradient-to-br from-indigo-900/40 via-purple-900/20 to-slate-900 p-6 rounded-2xl border border-indigo-500/30 shadow-xl space-y-3 relative overflow-hidden">
+                      
+                      <div className="bg-gradient-to-br from-blue-50/80 via-white to-indigo-50/50 p-6 rounded-3xl border border-blue-200/80 shadow-xl space-y-4 backdrop-blur-xl relative overflow-hidden">
                         <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent flex items-center gap-1.5">
-                            ✨ AI TASK COPILOT
+                          <span className="text-xs font-bold text-[#0084FF] flex items-center gap-1.5 uppercase tracking-wider">
+                            AI TASK COPILOT
                           </span>
                           <button
                             onClick={() => setShowAiKeyModal(!showAiKeyModal)}
-                            className="text-[10px] text-slate-400 hover:text-indigo-300 underline"
+                            className="text-[10px] text-slate-500 hover:text-[#0084FF] underline font-semibold"
                           >
-                            {geminiApiKey ? '🔑 API Key Activa' : '⚙️ Configurar Gemini API'}
+                            {geminiApiKey ? '🔑 Gemini API Conectada' : '⚙️ Configurar Gemini Key'}
                           </button>
                         </div>
 
                         {showAiKeyModal && (
-                          <div className="bg-slate-900 p-3 rounded-xl border border-slate-700 space-y-2">
+                          <div className="bg-white p-3 rounded-2xl border border-slate-200 space-y-2 shadow-md">
                             <input
                               type="password"
                               placeholder="Pega tu Google Gemini API Key aquí"
@@ -457,51 +556,53 @@ export default function App() {
                                 setGeminiApiKey(e.target.value);
                                 localStorage.setItem('tm_gemini_key', e.target.value);
                               }}
-                              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200"
+                              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900"
                             />
-                            <p className="text-[10px] text-slate-400">Si lo dejas vacío, usará el motor IA simulado que nunca falla en demostraciones.</p>
+                            <p className="text-[10px] text-slate-500 leading-tight">Si se deja vacío, usará el motor IA simulado que responde al instante en la demostración.</p>
                           </div>
                         )}
 
-                        <p className="text-xs text-slate-300">Describe el proyecto y la IA extraerá el título, categoría y skills automáticamente:</p>
+                        <p className="text-xs text-slate-600 font-medium">
+                          Describe el requerimiento en lenguaje natural. La IA extraerá el título, la categoría y las habilidades necesarias:
+                        </p>
 
                         <textarea
-                          rows={2}
-                          placeholder='Ej: "Necesito crear una pasarela de pagos con Stripe y autenticación JWT"'
+                          rows={3}
+                          placeholder='Ej: "Necesitamos desarrollar una pasarela de pagos con Stripe y autenticación mediante tokens JWT"'
                           value={aiPrompt}
                           onChange={(e) => setAiPrompt(e.target.value)}
-                          className="w-full bg-slate-950/80 border border-indigo-500/30 rounded-xl p-3 text-xs text-slate-100 focus:outline-none focus:border-indigo-400 resize-none"
+                          className="w-full bg-white/90 border border-slate-200 rounded-2xl p-3.5 text-xs text-slate-900 focus:outline-none focus:border-[#0084FF] shadow-inner resize-none"
                         />
 
                         <button
                           onClick={handleGenerateWithAI}
                           disabled={isAiLoading}
-                          className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold py-2.5 rounded-xl text-xs transition-all shadow-md shadow-indigo-500/20 flex items-center justify-center gap-2"
+                          className="w-full bg-[#0084FF] hover:bg-[#0073DC] text-white font-bold py-3 rounded-2xl text-xs transition-all shadow-md shadow-[#0084FF]/25 flex items-center justify-center gap-2"
                         >
-                          {isAiLoading ? '🧠 La IA está analizando la tarea...' : '✨ Autocompletar Tarea con IA'}
+                          {isAiLoading ? '🧠 La IA está analizando el proyecto...' : 'Autocompletar Tarea con IA'}
                         </button>
                       </div>
 
-                      <div className="bg-slate-900/60 backdrop-blur-md p-6 rounded-2xl border border-slate-800 shadow-xl space-y-4">
-                        <h3 className="text-sm font-bold text-slate-200">Detalles de la Tarea Generada</h3>
+                      <div className="bg-white/80 backdrop-blur-xl p-6 rounded-3xl border border-slate-200/80 shadow-lg space-y-4">
+                        <h3 className="text-sm font-bold text-slate-900">Detalles de la Tarea a Asignar</h3>
 
                         <div>
-                          <label className="block text-xs font-semibold text-slate-400 mb-1">Título</label>
+                          <label className="block text-xs font-semibold text-slate-500 mb-1">Título de la Tarea</label>
                           <input
                             type="text"
                             placeholder="Título asignado"
                             value={taskTitle}
                             onChange={(e) => setTaskTitle(e.target.value)}
-                            className="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-2 text-sm text-slate-100"
+                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-semibold text-slate-900"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-xs font-semibold text-slate-400 mb-1">Categoría</label>
+                          <label className="block text-xs font-semibold text-slate-500 mb-1">Categoría</label>
                           <select
                             value={taskCategory}
                             onChange={(e) => setTaskCategory(e.target.value)}
-                            className="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-2 text-sm text-slate-100"
+                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-semibold text-slate-900"
                           >
                             <option value="Frontend">Frontend Development</option>
                             <option value="Backend">Backend API & Services</option>
@@ -512,25 +613,33 @@ export default function App() {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-semibold text-slate-400 mb-1">Habilidades Requeridas</label>
+                          <label className="block text-xs font-semibold text-slate-500 mb-1">Habilidades Requeridas (Skills)</label>
                           <input
                             type="text"
                             placeholder="ej: react, node, sql"
                             value={taskSkills}
                             onChange={(e) => setTaskSkills(e.target.value)}
-                            className="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-2 text-sm text-slate-100"
+                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-semibold text-slate-900"
                           />
                         </div>
                       </div>
+
                     </div>
 
-                    <div className="lg:col-span-7 bg-slate-900/60 backdrop-blur-md p-6 rounded-2xl border border-slate-800 shadow-xl space-y-4">
-                      <h2 className="text-lg font-bold text-slate-100 flex items-center justify-between">
-                        <span> Matcher de Compatibilidad </span>
-                        <span className="text-xs font-normal text-indigo-400 bg-indigo-500/10 px-3 py-1 rounded-full border border-indigo-500/20">En tiempo real</span>
-                      </h2>
+                    <div className="lg:col-span-7 bg-white/80 backdrop-blur-xl p-6 sm:p-8 rounded-3xl border border-slate-200/80 shadow-xl space-y-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h2 style={{ fontFamily: "'Fustat', sans-serif" }} className="text-xl font-bold text-slate-900">
+                            Matcher de Compatibilidad
+                          </h2>
+                          <p className="text-xs text-slate-500">Evaluación algorítmica por habilidades en tiempo real</p>
+                        </div>
+                        <span className="text-xs font-bold text-[#0084FF] bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
+                          Algoritmo Activo
+                        </span>
+                      </div>
 
-                      <div className="space-y-3 mt-4">
+                      <div className="space-y-4">
                         {employees
                           .map((emp) => ({
                             ...emp,
@@ -538,16 +647,17 @@ export default function App() {
                           }))
                           .sort((a, b) => b.matchScore - a.matchScore)
                           .map((emp) => (
-                            <div key={emp.id} className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                              <div className="space-y-1">
+                            <div key={emp.id} className="bg-slate-50/80 p-4 sm:p-5 rounded-2xl border border-slate-200/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all hover:border-[#0084FF]/40">
+                              
+                              <div className="space-y-1.5">
                                 <div className="flex items-center gap-2">
-                                  <span className="font-semibold text-slate-100">{emp.name}</span>
-                                  <span className="text-xs text-slate-400">({emp.role})</span>
+                                  <span className="font-bold text-slate-900 text-sm">{emp.name}</span>
+                                  <span className="text-xs text-slate-500">({emp.role})</span>
                                 </div>
-                                <div className="flex flex-wrap gap-1">
+                                <div className="flex flex-wrap gap-1.5">
                                   {emp.skills.map((s, idx) => (
-                                    <span key={idx} className="text-[10px] px-2 py-0.5 rounded bg-slate-700 text-slate-300">
-                                      {s}
+                                    <span key={idx} className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-600">
+                                      #{s}
                                     </span>
                                   ))}
                                 </div>
@@ -555,55 +665,68 @@ export default function App() {
 
                               <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
                                 <div className="text-right">
-                                  <span className={`text-sm font-bold ${emp.matchScore >= 70 ? 'text-emerald-400' : emp.matchScore >= 40 ? 'text-amber-400' : 'text-slate-400'}`}>
+                                  <span className={`text-sm font-extrabold ${
+                                    emp.matchScore >= 70 ? 'text-emerald-600' : emp.matchScore >= 40 ? 'text-amber-600' : 'text-slate-500'
+                                  }`}>
                                     {emp.matchScore}% Match
                                   </span>
-                                  <div className="w-24 bg-slate-700 h-1.5 rounded-full overflow-hidden mt-1">
-                                    <div className={`h-full ${emp.matchScore >= 70 ? 'bg-emerald-500' : emp.matchScore >= 40 ? 'bg-amber-500' : 'bg-slate-500'}`} style={{ width: `${emp.matchScore}%` }} />
+                                  <div className="w-24 bg-slate-200 h-2 rounded-full overflow-hidden mt-1">
+                                    <div 
+                                      className={`h-full transition-all duration-500 ${
+                                        emp.matchScore >= 70 ? 'bg-emerald-500' : emp.matchScore >= 40 ? 'bg-amber-500' : 'bg-slate-400'
+                                      }`} 
+                                      style={{ width: `${emp.matchScore}%` }} 
+                                    />
                                   </div>
                                 </div>
+
                                 <button
                                   onClick={() => handleAssignTask(emp.name, reqSkillsList)}
-                                  className="px-4 py-2 rounded-lg text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition-all active:scale-95 shadow-md shadow-indigo-600/20"
+                                  className="px-4 py-2.5 rounded-xl text-xs font-bold bg-[#0084FF] hover:bg-[#0073DC] text-white transition-all shadow-md shadow-[#0084FF]/20 active:scale-95"
                                 >
-                                  📌 Asignar
+                                  Asignar
                                 </button>
                               </div>
+
                             </div>
                           ))}
                       </div>
                     </div>
+
                   </div>
                 )}
 
-                {/* TABLAS DE TAREAS - AHORA CON BOTÓN DE ELIMINAR */}
                 {adminTab === 'tasks' && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {tasks.length === 0 ? (
-                      <p className="text-slate-400 col-span-full py-12 text-center">No hay tareas en el sistema.</p>
+                      <p className="text-slate-500 col-span-full py-16 text-center font-medium">No hay tareas creadas en el sistema.</p>
                     ) : (
                       tasks.map((task) => (
-                        <div key={task.id} className="bg-slate-900/60 backdrop-blur-md p-5 rounded-2xl border border-slate-800 space-y-3 flex flex-col justify-between hover:border-slate-700 transition-all">
+                        <div key={task.id} className="bg-white/80 backdrop-blur-xl p-6 rounded-3xl border border-slate-200/80 shadow-lg space-y-4 flex flex-col justify-between hover:shadow-xl transition-all">
                           <div className="space-y-3">
                             <div className="flex items-start justify-between">
-                              <span className="text-xs font-bold px-2.5 py-1 rounded-md bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">{task.category}</span>
-                              <span className={`text-xs px-2.5 py-1 rounded-full font-semibold ${
-                                task.status === 'Completada' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
-                                task.status === 'En Progreso' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-                              }`}>{task.status}</span>
+                              <span className="text-xs font-bold px-3 py-1 rounded-full bg-blue-50 text-[#0084FF] border border-blue-200">
+                                {task.category}
+                              </span>
+                              <span className={`text-xs px-3 py-1 rounded-full font-bold ${
+                                task.status === 'Completada' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
+                                task.status === 'En Progreso' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-amber-50 text-amber-700 border border-amber-200'
+                              }`}>
+                                {task.status}
+                              </span>
                             </div>
-                            <h3 className="font-bold text-slate-100 text-base">{task.title}</h3>
-                            <p className="text-xs text-slate-400">👤 Asignado a: <strong className="text-slate-200">{task.assignedTo}</strong></p>
+
+                            <h3 className="font-bold text-slate-900 text-base leading-snug">{task.title}</h3>
+                            <p className="text-xs text-slate-500">👤 Asignado a: <strong className="text-slate-900">{task.assignedTo}</strong></p>
                           </div>
 
-                          <div className="pt-3 border-t border-slate-800 flex justify-between items-center">
-                            <span className="text-[10px] text-slate-500">{task.createdAt}</span>
+                          <div className="pt-3 border-t border-slate-100 flex justify-between items-center">
+                            <span className="text-[10px] font-semibold text-slate-400">{task.createdAt}</span>
                             <button
                               onClick={() => handleDeleteTask(task.id)}
-                              className="text-xs bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 px-2.5 py-1 rounded-lg transition-all flex items-center gap-1"
-                              title="Eliminar tarea definitivamente"
+                              className="text-xs bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 font-semibold px-3 py-1.5 rounded-xl transition-all"
                             >
-                               Eliminar
+                              Eliminar
                             </button>
                           </div>
                         </div>
@@ -612,71 +735,95 @@ export default function App() {
                   </div>
                 )}
 
-                {/* GESTIÓN DE EMPLEADOS - CON BOTÓN DE BAJA / ELIMINAR */}
                 {adminTab === 'employees' && (
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                    <form onSubmit={handleAddEmployee} className="lg:col-span-4 bg-slate-900/60 backdrop-blur-md p-6 rounded-2xl border border-slate-800 space-y-4">
-                      <h2 className="text-lg font-bold text-slate-100">👤 Registrar Empleado</h2>
-                      <input
-                        type="text"
-                        placeholder="Nombre Completo"
-                        value={newEmpName}
-                        onChange={(e) => setNewEmpName(e.target.value)}
-                        className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-sm text-slate-100"
-                      />
-                      <select
-                        value={newEmpRole}
-                        onChange={(e) => setNewEmpRole(e.target.value)}
-                        className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-sm text-slate-100"
-                      >
-                        <option value="Frontend Developer">Frontend Developer</option>
-                        <option value="Backend Developer">Backend Developer</option>
-                        <option value="Fullstack Engineer">Fullstack Engineer</option>
-                      </select>
-                      <input
-                        type="password"
-                        placeholder="Contraseña / PIN (Ej. 123)"
-                        value={newEmpPassword}
-                        onChange={(e) => setNewEmpPassword(e.target.value)}
-                        className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-sm text-slate-100"
-                      />
-                      <input
-                        type="text"
-                        placeholder="Habilidades (ej: react, sql, jwt)"
-                        value={newEmpSkills}
-                        onChange={(e) => setNewEmpSkills(e.target.value)}
-                        className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-sm text-slate-100"
-                      />
-                      <button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-xl text-sm">
+                    
+                    <form onSubmit={handleAddEmployee} className="lg:col-span-4 bg-white/80 backdrop-blur-xl p-6 rounded-3xl border border-slate-200/80 shadow-lg space-y-4">
+                      <h2 style={{ fontFamily: "'Fustat', sans-serif" }} className="text-lg font-bold text-slate-900">
+                        👤 Registrar Empleado
+                      </h2>
+                      
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-500 mb-1">Nombre Completo</label>
+                        <input
+                          type="text"
+                          placeholder="Ej: Laura Martínez"
+                          value={newEmpName}
+                          onChange={(e) => setNewEmpName(e.target.value)}
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-900"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-500 mb-1">Rol Profesional</label>
+                        <select
+                          value={newEmpRole}
+                          onChange={(e) => setNewEmpRole(e.target.value)}
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-900"
+                        >
+                          <option value="Frontend Developer">Frontend Developer</option>
+                          <option value="Backend Developer">Backend Developer</option>
+                          <option value="Fullstack Engineer">Fullstack Engineer</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-500 mb-1">Contraseña / PIN</label>
+                        <input
+                          type="password"
+                          placeholder="Ej: 123"
+                          value={newEmpPassword}
+                          onChange={(e) => setNewEmpPassword(e.target.value)}
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-900"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-500 mb-1">Habilidades (Skills separadas por coma)</label>
+                        <input
+                          type="text"
+                          placeholder="ej: react, sql, jwt"
+                          value={newEmpSkills}
+                          onChange={(e) => setNewEmpSkills(e.target.value)}
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-900"
+                        />
+                      </div>
+
+                      <button type="submit" className="w-full bg-[#0084FF] text-white font-bold py-3 rounded-2xl text-xs shadow-md">
                         Guardar Empleado
                       </button>
                     </form>
 
-                    <div className="lg:col-span-8 bg-slate-900/60 backdrop-blur-md p-6 rounded-2xl border border-slate-800 space-y-4">
-                      <h2 className="text-lg font-bold text-slate-100">Personal Registrado ({employees.length})</h2>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="lg:col-span-8 bg-white/80 backdrop-blur-xl p-6 rounded-3xl border border-slate-200/80 shadow-lg space-y-4">
+                      <h2 style={{ fontFamily: "'Fustat', sans-serif" }} className="text-lg font-bold text-slate-900">
+                        Personal Registrado ({employees.length})
+                      </h2>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {employees.map((emp) => (
-                          <div key={emp.id} className="bg-slate-800/40 p-4 rounded-xl border border-slate-700/50 space-y-3 flex flex-col justify-between">
-                            <div className="space-y-1">
+                          <div key={emp.id} className="bg-slate-50/80 p-4 rounded-2xl border border-slate-200 space-y-3 flex flex-col justify-between">
+                            <div className="space-y-1.5">
                               <div className="flex justify-between items-center">
-                                <h3 className="font-bold text-slate-100">{emp.name}</h3>
-                                <span className="text-[11px] bg-slate-700 text-slate-300 px-2 py-0.5 rounded">{emp.role}</span>
+                                <h3 className="font-bold text-slate-900 text-sm">{emp.name}</h3>
+                                <span className="text-[10px] font-bold bg-white border border-slate-200 text-slate-600 px-2.5 py-0.5 rounded-full">
+                                  {emp.role}
+                                </span>
                               </div>
-                              <p className="text-[11px] text-slate-400">Clave: <code className="text-indigo-300">{emp.password || '123'}</code></p>
-                              <div className="flex flex-wrap gap-1 pt-1">
+                              <p className="text-[11px] text-slate-500">Clave: <code className="text-[#0084FF] font-bold">{emp.password || '123'}</code></p>
+                              
+                              <div className="flex flex-wrap gap-1.5 pt-1">
                                 {emp.skills.map((s, idx) => (
-                                  <span key={idx} className="text-[10px] bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 px-2 py-0.5 rounded">
+                                  <span key={idx} className="text-[10px] font-semibold bg-white text-slate-600 border border-slate-200 px-2 py-0.5 rounded-md">
                                     #{s}
                                   </span>
                                 ))}
                               </div>
                             </div>
 
-                            <div className="pt-2 border-t border-slate-700/60 flex justify-end">
+                            <div className="pt-2 border-t border-slate-200 flex justify-end">
                               <button
                                 onClick={() => handleDeleteEmployee(emp.id)}
-                                className="text-xs bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 px-2.5 py-1 rounded-lg transition-all flex items-center gap-1"
-                                title="Dar de baja o eliminar empleado"
+                                className="text-xs bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 font-semibold px-3 py-1 rounded-xl transition-all"
                               >
                                 Dar de Baja
                               </button>
@@ -685,67 +832,77 @@ export default function App() {
                         ))}
                       </div>
                     </div>
+
                   </div>
                 )}
+
               </div>
             ) : (
-              /* DASHBOARD EMPLEADO */
-              <div className="space-y-6 max-w-4xl mx-auto">
-                <div className="bg-slate-900/60 backdrop-blur-md p-6 rounded-2xl border border-slate-800 flex items-center justify-between">
+              <div className="space-y-8 max-w-4xl mx-auto">
+                
+                <div className="bg-white/80 backdrop-blur-xl p-8 rounded-3xl border border-slate-200/80 shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                   <div>
-                    <h2 className="text-xl font-bold text-slate-100">Panel Personal de {currentUser.name}</h2>
-                    <p className="text-xs text-slate-400">Visualiza y actualiza tus actividades asignadas</p>
+                    <h2 style={{ fontFamily: "'Fustat', sans-serif" }} className="text-2xl font-bold text-slate-900">
+                      Panel Personal de {currentUser.name}
+                    </h2>
+                    <p className="text-xs text-slate-500 mt-1">Visualiza y actualiza tus actividades asignadas en tiempo real</p>
                   </div>
-                  <span className="text-xs font-semibold px-3 py-1 bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 rounded-full">
+                  <span className="text-xs font-bold px-4 py-1.5 bg-blue-50 text-[#0084FF] border border-blue-200 rounded-full">
                     {currentUser.empRole}
                   </span>
                 </div>
 
                 <div className="space-y-4">
-                  <h3 className="text-base font-bold text-slate-200">
+                  <h3 className="text-base font-bold text-slate-900">
                     Mis Tareas Asignadas ({tasks.filter(t => t.assignedTo === currentUser.name).length})
                   </h3>
 
                   {tasks.filter(t => t.assignedTo === currentUser.name).length === 0 ? (
-                    <div className="bg-slate-900/40 border border-slate-800 p-12 text-center rounded-2xl text-slate-400">
+                    <div className="bg-white/80 border border-slate-200 p-16 text-center rounded-3xl text-slate-500 shadow-sm font-medium">
                       🎉 ¡No tienes tareas pendientes asignadas actualmente!
                     </div>
                   ) : (
                     tasks
                       .filter(t => t.assignedTo === currentUser.name)
                       .map((task) => (
-                        <div key={task.id} className="bg-slate-900/60 backdrop-blur-md p-5 rounded-2xl border border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div key={task.id} className="bg-white/80 backdrop-blur-xl p-6 rounded-3xl border border-slate-200/80 shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:shadow-lg transition-all">
+                          
                           <div className="space-y-2">
-                            <span className="text-xs font-bold px-2.5 py-0.5 rounded-md bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                            <span className="text-xs font-bold px-3 py-1 rounded-full bg-blue-50 text-[#0084FF] border border-blue-200">
                               {task.category}
                             </span>
-                            <h4 className="font-bold text-slate-100 text-lg">{task.title}</h4>
+                            <h4 className="font-bold text-slate-900 text-lg">{task.title}</h4>
                           </div>
 
                           <div className="flex items-center gap-2">
-                            <label className="text-xs text-slate-400">Estado:</label>
+                            <label className="text-xs font-semibold text-slate-500">Estado:</label>
                             <select
                               value={task.status}
                               onChange={(e) => handleUpdateTaskStatus(task.id, e.target.value)}
-                              className={`text-xs font-semibold px-3 py-2 rounded-xl border focus:outline-none ${
-                                task.status === 'Completada' ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' :
-                                task.status === 'En Progreso' ? 'bg-blue-500/20 text-blue-300 border-blue-500/40' : 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                              className={`text-xs font-bold px-4 py-2 rounded-xl border focus:outline-none shadow-sm ${
+                                task.status === 'Completada' ? 'bg-emerald-50 text-emerald-700 border-emerald-300' :
+                                task.status === 'En Progreso' ? 'bg-blue-50 text-blue-700 border-blue-300' : 'bg-amber-50 text-amber-700 border-amber-300'
                               }`}
                             >
-                              <option value="Pendiente" className="bg-slate-900 text-slate-100">Pendiente</option>
-                              <option value="En Progreso" className="bg-slate-900 text-slate-100">En Progreso</option>
-                              <option value="Completada" className="bg-slate-900 text-slate-100">Completada</option>
+                              <option value="Pendiente" className="bg-white text-slate-900">Pendiente</option>
+                              <option value="En Progreso" className="bg-white text-slate-900">En Progreso</option>
+                              <option value="Completada" className="bg-white text-slate-900">Completada</option>
                             </select>
                           </div>
+
                         </div>
                       ))
                   )}
                 </div>
+
               </div>
             )}
+
           </div>
         )}
+
       </main>
+
     </div>
   );
 }
